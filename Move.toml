@@ -1,0 +1,14 @@
+[package]
+name = 'Aptoswap'
+version = '2.0.1'
+
+[dependencies.AptosFramework]
+git = 'https://github.com/aptos-labs/aptos-core.git'
+rev = 'main'
+subdir = 'aptos-move/framework/aptos-framework'
+
+[addresses]
+Aptoswap = "_"
+
+[dev-addresses]
+Aptoswap = "0x11111"
