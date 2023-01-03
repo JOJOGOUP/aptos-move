@@ -211,6 +211,10 @@ module Aptoswap::pool {
         let _ = create_pool_impl<X, Y>(owner, EPoolTypeStableSwap, fee_direction, admin_fee, lp_fee, incentive_fee, connect_fee, withdraw_fee, amp);
     }
 
+    public entry fun change_fee<X, Y>(owner: &signer, admin_fee: u64, lp_fee: u64, incentive_fee: u64, connect_fee: u64) acquires Pool {
+        change_fee_impl<X, Y>(owner, admin_fee, lp_fee, incentive_fee, connect_fee);
+    }
+
     public entry fun add_liquidity<X, Y>(user: &signer, x_added: u64, y_added: u64) acquires Pool, LPCapabilities {
         add_liquidity_impl<X, Y>(user, x_added, y_added);
     }
@@ -362,6 +366,19 @@ module Aptoswap::pool {
         );
 
         pool_account_addr
+    }
+
+    public(friend) fun change_fee_impl<X, Y>(owner: &signer, admin_fee: u64, lp_fee: u64, incentive_fee: u64, connect_fee: u64) acquires Pool {
+        validate_admin(owner);
+        assert!(lp_fee >= 0 && admin_fee >= 0 && incentive_fee >= 0 && connect_fee >= 0, EWrongFee);
+        assert!(lp_fee + admin_fee + incentive_fee + connect_fee < (BPS_SCALING as u64), EWrongFee);
+
+        // Check whether the pool we've created
+        let pool = borrow_global_mut<Pool<X, Y>>(@Aptoswap);
+        pool.admin_fee = admin_fee;
+        pool.lp_fee = lp_fee;
+        pool.incentive_fee = incentive_fee;
+        pool.connect_fee = connect_fee;
     }
     
     public(friend) fun add_liquidity_impl<X, Y>(user: &signer, x_added: u64, y_added: u64) acquires Pool, LPCapabilities {
